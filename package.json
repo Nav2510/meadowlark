@@ -1,0 +1,19 @@
+{
+  "name": "meadowlark",
+  "version": "1.0.0",
+  "description": "Meadowlark travel website with the node.js and express",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nav2510/meadowlark.git"
+  },
+  "author": "Navdeep singh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nav2510/meadowlark/issues"
+  },
+  "homepage": "https://github.com/Nav2510/meadowlark#readme"
+}
