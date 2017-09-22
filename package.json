@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/Nav2510/meadowlark/issues"
   },
-  "homepage": "https://github.com/Nav2510/meadowlark#readme"
+  "homepage": "https://github.com/Nav2510/meadowlark#readme",
+  "dependencies": {
+    "express": "^4.15.4",
+    "express3-handlebars": "^0.5.2"
+  }
 }
