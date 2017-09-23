@@ -1,4 +1,5 @@
 var express = require('express');
+var fortune = require('./lib/fortune.js');
 
 var app = express();
 
@@ -8,6 +9,9 @@ var handlebars = require('express3-handlebars').create({ defaultLayout : 'main'}
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
+//adding the static middleware
+app.use(express.static(__dirname + '/public'));
+
 app.set('port', process.env.PORT || 3000);
 
 app.get('/', function(req, res) {
@@ -15,7 +19,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/about', function(req, res) {
-	res.render('about');
+    res.render('about',{fortune : fortune.getFortune()});
 });
 
 //404 catch-all handler(middleware)
@@ -32,5 +36,5 @@ app.use(function (err, req, res, next) {
 });
 
 app.listen(app.get('port'), function () {
-	console.log(" Express started on http://localhost:" + app.get('port') + '; press Ctrl-C to termintate.');
+	console.log(" Express started on http://localhost:" + app.get('port') + '; press Ctrl-C to terminate.');
 });
