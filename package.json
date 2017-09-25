@@ -18,6 +18,13 @@
   "homepage": "https://github.com/Nav2510/meadowlark#readme",
   "dependencies": {
     "express": "^4.15.4",
-    "express3-handlebars": "^0.5.2"
+    "express3-handlebars": "^0.5.2",
+    "jshint": "^2.9.5",
+    "jslint": "^0.11.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^3.5.3",
+    "zombie": "^5.0.7"
   }
 }
