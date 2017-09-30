@@ -1,0 +1,4 @@
+1. tour cross page testing(hood-river and oregon-coast-handlebars) and request-group-rate.handlebars
+2. jquery-file upload.middleware
+3. ./qa folder(tests-crosspage.js, tests-unit.js)
+4. gruntfile.js
