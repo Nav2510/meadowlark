@@ -3,6 +3,8 @@ var fortune = require('./lib/fortune.js');
 var formidable = require('formidable');
 var jqupload = require('jquery-file-upload-middleware');
 var credentials = require('./credentials.js');
+var connect = require('connect');
+var nodemailer = require('nodemailer');
 
 var app = express();
 
@@ -34,6 +36,27 @@ function getWeatherData() {
 		],
 	};
 }
+
+//setting up mails
+var mailTransport = nodemailer.createTransport({
+	service: 'Gmail',
+	auth: {
+		user: credentials.gmail.user,
+		pass: credentials.gmail.password,
+	}
+});
+
+app.get('/sendmail', function() {
+	mailTransport.sendMail({
+	from: '"Meadowlark Travel" <info@meadowlarktravel.com>',
+	to: 'singh.navdeep2510@gmail.com',
+	subject: 'Your MeadowLark Travel Tour',
+	text: 'Thank you for booking your trip with Meadowlark Travel. We look forward to your visit!',
+	}, function(err) {
+		if(err) console.error('Unable to send email:' + error);
+	});
+});
+
 //set  up handlebars view engine
 var handlebars = require('express3-handlebars').create({ defaultLayout : 'main'});
 
@@ -42,11 +65,83 @@ app.set('view engine', 'handlebars');
 
 app.set('port', process.env.PORT || 3000);
 
+
+//flash message middleware
+/*
+app.use(function(req, res, next) {
+    //if there's a flash message, transfer it to the context, then clear it
+    res.locals.flash = req.session.flash;
+    delete req.session.flash;
+    next();
+});
+*/
+
+//adding the tourRequireWaiver middleware
+//app.use(require('./lib/tourRequiresWaiver.js'));
+
+//adding the cartvalidation middleware
+var cartValidation = require('./lib/cartValidation.js');
+app.use(cartValidation.checkWaivers);
+app.use(cartValidation.checkGuestCounts);
+
 //adding the static middleware
 app.use(express.static(__dirname + '/public'));
 
 //adding body-parser middleware
 app.use(require('body-parser')());
+
+//using cookies
+app.use(require('cookie-parser')(credentials.cookieSecret));
+
+//using session
+app.use(require('cookie-parser')(credentials.cookieSecret));
+app.use(require('express-session')());
+
+//for now, we're mocking NewsletterSignup
+function NewsletterSignup () {
+}
+NewsletterSignup.prototype.save = function (cb) {
+	cb();
+};
+
+var VALID_EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+app.post('/newsletter', function (req, res) {
+	var name = req.body.name || '', email = req.body.email || '';
+
+	//input validation
+	if (!email.match(VALID_EMAIL_REGEX)) {
+		if (req.xhr) return res.json({error: 'Invalid name email address.'});
+		req.session.flash = {
+			type: 'danger',
+			intro: 'Validation error!',
+			message: 'The email addresss yor entered was not valid.',
+		};
+		return res.redirect(303, '/newsletter/archive');
+	}
+	new NewsletterSignup({name: name, email: email}).save (function (err) {
+		if (err) {
+			if (req.xhr) return res.json({error: 'Database error.'});
+			req.session.flash = {
+				type: 'danger',
+				intro: 'Database error!',
+				message: 'There was a database error; please try again later.',
+			};
+			return res.redirect(303, '/newsletter/archive');
+		}
+		if(req.xhr) return res.json({ success: true});
+		req.session.flash = {
+			type: 'success',
+			intro: 'Thank you!',
+			message: 'You have now been signed up for the newsletter.',
+		};
+		return res.redirect(303, '/newsletter/archive');
+	});
+});
+
+app.get('/newsletter/archive', function(req, res) {
+	res.render('newsletter/archive');
+});
 
 app.get('/newsletter', function(req, res) {
 	res.render('newsletter', {csrf: 'CSRF token goes here'});
@@ -61,13 +156,37 @@ app.post('/process', function(req, res) {
 	res.redirect(303, '/thank-you');
 });
 
+//roustes are present below----
+
+app.use(function(req, res, next) {
+    res.locals.showTests = app.get('env') !== 'production' && req.query.test === '1';
+    next();
+});
 
 app.get('/', function(req, res) {
 	res.render('home');
 });
 
 app.get('/about', function(req, res) {
-    res.render('about',{fortune : fortune.getFortune()});
+    res.render('about', {
+        fortune : fortune.getFortune(),
+        pageTestScript: '/qa/tests-about.js'
+    });
+});
+
+app.get('/tours/hood-river', function(req, res){
+    res.render('tours/hood-river');
+});
+app.get('/tours/request-group-rate', function(req, res){
+    res.render('tours/request-group-rate');
+});
+
+app.get('/tours/oregon-coast', function(req, res) {
+	res.render('tours/oregon-coast');
+});
+
+app.get('/tours/request-group-rate', function(req, res){
+ 	res.render('tours/request-group-rate');
 });
 
 app.get('/thank-you', function(req, res) {
@@ -93,10 +212,6 @@ app.post('/contest/vacation-photo/:year/:month', function(req, res) {
 		res.redirect(303, '/thank-you');
 	});
 });
-
-//using cookies
-app.use(require('cookie-parser')(credentials.cookieSecret));
-
 
 //creating middle ware to inject forecast data into res.locals.partials object
 app.use(function(req, res, next) {
@@ -136,3 +251,5 @@ app.use(function (err, req, res, next) {
 app.listen(app.get('port'), function () {
 	console.log(" Express started on http://localhost:" + app.get('port') + '; press Ctrl-C to terminate.');
 });
+
+if( app.thing == null ) console.log( 'bleat!' );

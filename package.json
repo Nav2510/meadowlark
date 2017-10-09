@@ -17,11 +17,25 @@
   },
   "homepage": "https://github.com/Nav2510/meadowlark#readme",
   "dependencies": {
+    "assert": "^1.4.1",
     "body-parser": "^1.18.2",
+    "connect": "^3.6.5",
     "cookie-parser": "^1.4.3",
     "express": "^4.15.4",
+    "express-session": "^1.15.6",
     "express3-handlebars": "^0.5.2",
     "formidable": "^1.1.1",
-    "jquery-file-upload-middleware": "^0.1.8"
+    "jquery-file-upload-middleware": "^0.1.8",
+    "nodemailer": "^4.1.3",
+    "nodemon": "^1.12.1"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "grunt": "^1.0.1",
+    "grunt-cafe-mocha": "^0.1.13",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-exec": "^3.0.0",
+    "jshint": "^2.9.5",
+    "jslint": "^0.11.0"
   }
 }
